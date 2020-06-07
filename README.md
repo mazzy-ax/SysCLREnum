@@ -4,7 +4,7 @@
 [license]:https://github.com/mazzy-ax/SysCLREnum/blob/master/LICENSE
 [System.Enum]:https://docs.microsoft.com/en-us/dotnet/api/system.enum
 
-[SysCLREnum][project] &ndash; это класс-обертка на языке X++ для работы перечислениями .net ([System.Enum]) в [Microsoft Dynamics AX 2009](ax2009), [Microsoft Dynamics AX 2012](ax2012) и [Axapta 4.0](ax4).
+[SysCLREnum][project] &ndash; это класс-обертка на языке X++ для работы с перечислениями .net ([System.Enum]) в [Microsoft Dynamics AX 2009](ax2009), [Microsoft Dynamics AX 2012](ax2012) и [Axapta 4.0](ax4).
 
 ## Отличия для ax4 и ax2009, 2012
 
