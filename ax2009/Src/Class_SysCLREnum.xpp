@@ -1,0 +1,260 @@
+//
+// mazzy, https://github.com/mazzy-ax/SysCLREnum
+//
+// класс-обертка для System.Enum
+// https://docs.microsoft.com/en-us/dotnet/api/system.enum
+class SysCLREnum
+{
+    System.Enum enum;
+
+    public System.Enum enum()
+    {
+        return enum;
+    }
+
+    public boolean equal(Object other)
+    {
+        boolean       ret;
+        System.Enum   thisEnum = this.enum();
+        System.Object otherObject;
+        ;
+
+        if( SysDictClass::is(other, classnum(CLRObject)) )
+        {
+            otherObject = other;
+        }
+        else if( SysDictClass::is(other, classnum(SysCLREnum)) )
+        {
+            otherObject = other.enum();
+        }
+
+        new InteropPermission(InteropKind::ClrInterop).assert();
+
+        ret = thisEnum.Equals(otherObject);
+
+        return ret;
+    }
+
+    public str getName(int value = this.getValue())
+    {
+        str ret;
+        ;
+
+        new InteropPermission(InteropKind::ClrInterop).assert();
+
+        ret = System.Enum::GetName(enum.GetType(), value);
+
+        return ret;
+    }
+
+    public container getNames()
+    {
+        container       ret;
+        System.Array    arr;
+        System.Object   value;
+        int             lowerBound;
+        int             upperBound;
+        int             i;
+        ;
+
+        new InteropPermission(InteropKind::ClrInterop).assert();
+
+        arr = System.Enum::GetNames(enum.GetType());
+        lowerBound = arr.GetLowerBound(0);
+        upperBound = arr.GetUpperBound(0);
+
+        for( i = lowerBound; i <= upperBound; i++ )
+        {
+            value = arr.GetValue(i);
+            ret += CLRInterop::getAnyTypeForObject(value);
+        }
+
+        return ret;
+    }
+
+    public int getValue()
+    {
+        int ret;
+        ;
+
+        new InteropPermission(InteropKind::ClrInterop).assert();
+
+        ret = System.Convert::ToInt32(enum);
+
+        return ret;
+    }
+
+    public container getValues()
+    {
+        container       ret;
+        System.Array    arr;
+        System.Object   value;
+        int             lowerBound;
+        int             upperBound;
+        int             i;
+        ;
+
+        new InteropPermission(InteropKind::ClrInterop).assert();
+
+        arr = System.Enum::GetValues(enum.GetType());
+        lowerBound = arr.GetLowerBound(0);
+        upperBound = arr.GetUpperBound(0);
+
+        for( i = lowerBound; i <= upperBound; i++ )
+        {
+            value = arr.GetValue(i);
+            ret += CLRInterop::getAnyTypeForObject(value);
+        }
+
+        return ret;
+    }
+
+    public boolean isDefined(anytype valueOrName)
+    {
+        boolean         ret;
+        System.Object   clrValueOrName = CLRInterop::getObjectForAnyType(valueOrName);
+        ;
+
+        new InteropPermission(InteropKind::ClrInterop).assert();
+
+        ret = System.Enum::IsDefined(enum.GetType(), clrValueOrName);
+
+        return ret;
+    }
+
+    public void new(System.Enum _enum)
+    {
+        if( CLRInterop::isNull(_enum) )
+            throw error(Error::wrongUseOfFunction(funcname()));
+
+        enum = _enum;
+    }
+
+    public str toString(str format = 'G')
+    {
+        str ret;
+        ;
+
+        new InteropPermission(InteropKind::ClrInterop).assert();
+
+        ret = enum.ToString(format);
+
+        return ret;
+    }
+
+    public static SysCLREnum contsruct(System.Enum enum)
+    {
+        SysCLREnum ret = new SysCLREnum(enum);
+
+        return ret;
+    }
+
+    public static str format(System.Enum enum, str format = 'G')
+    {
+        str ret;
+        ;
+
+        new InteropPermission(InteropKind::ClrInterop).assert();
+
+        ret = System.Enum::Format(enum.GetType(), enum, format);
+
+        return ret;
+    }
+
+    public static System.Enum fromIdx(System.Type enumType, int idx = 0)
+    {
+        System.Enum   ret;
+        System.Array  arr;
+        System.Object value;
+        ;
+
+        new InteropPermission(InteropKind::ClrInterop).assert();
+
+        arr   = System.Enum::GetValues(enumType);
+        idx  += CLRInterop::getAnyTypeForObject(arr.GetLowerBound(0));
+        value = arr.GetValue(idx);
+        ret   = System.Enum::ToObject(enumType, value);
+
+        return ret;
+    }
+
+    public static System.Enum fromName(System.Type enumType, str name)
+    {
+        return SysCLREnum::parse(enumType, name);
+    }
+
+    public static System.Enum fromValue(System.Type enumType, int value)
+    {
+        System.Enum ret;
+        ;
+
+        new InteropPermission(InteropKind::ClrInterop).assert();
+
+        if( !System.Enum::IsDefined(enumType, value) )
+            throw error(strfmt('Value %1 is not defined for Enum %2', value, CLRInterop::getAnyTypeForObject(enumType.get_FullName())));
+
+        ret = System.Enum::ToObject(enumType, value);
+
+        return ret;
+    }
+
+    public static str name(System.Enum enum)
+    {
+        str ret;
+        ;
+
+        new InteropPermission(InteropKind::ClrInterop).assert();
+
+        ret = System.Enum::GetName(enum.GetType(), enum);
+
+        return ret;
+    }
+
+    public static SysCLREnum newFromIdx(System.Type enumType, int idx = 0)
+    {
+        System.Enum   enum = SysCLREnum::fromIdx(enumType, idx);
+        SysCLREnum    ret  = SysCLREnum::contsruct(enum);
+
+        return ret;
+    }
+
+    public static SysCLREnum newFromName(System.Type enumType, str name, boolean ignoreCase = true)
+    {
+        System.Enum enum = SysCLREnum::parse(enumType, name, true);
+        SysCLREnum  ret  = SysCLREnum::contsruct(enum);
+
+        return ret;
+    }
+
+    public static SysCLREnum newFromValue(System.Type enumType, int value)
+    {
+        System.Enum enum = SysCLREnum::fromValue(enumType, value);
+        SysCLREnum  ret  = SysCLREnum::contsruct(enum);
+
+        return ret;
+    }
+
+    public static System.Enum parse(System.Type enumType, str nameOrValue, boolean ignoreCase = true)
+    {
+        System.Enum enum;
+        ;
+
+        new InteropPermission(InteropKind::ClrInterop).assert();
+
+        enum = System.Enum::Parse(enumType, nameOrValue, ignoreCase);
+
+        return enum;
+    }
+
+    public static int value(System.Enum enum)
+    {
+        int ret;
+        ;
+
+        new InteropPermission(InteropKind::ClrInterop).assert();
+
+        ret = System.Convert::ToInt32(enum);
+
+        return ret;
+    }
+}

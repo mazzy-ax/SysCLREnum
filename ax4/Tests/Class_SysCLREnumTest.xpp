@@ -1,0 +1,316 @@
+//
+// mazzy, https://github.com/mazzy-ax/SysCLREnum
+//
+class SysCLREnumTest extends SysTestCase
+{
+
+    void testConstruct()
+    {
+        SysCLREnum enum = SysCLREnum::contsruct(CLRInterop::parseClrEnum('System.TypeCode','Int32'));
+    }
+
+    void testConstruct_NotEnum()
+    {
+        System.Object obj;
+        ;
+
+        this.parmExceptionExpected(true);
+        SysCLREnum::contsruct(obj);
+    }
+
+    void testConstruct_Null()
+    {
+        this.parmExceptionExpected(true);
+        SysCLREnum::contsruct(null);
+    }
+
+    void testEnum()
+    {
+        System.TypeCode expected = CLRInterop::parseClrEnum('System.TypeCode','Boolean');
+        System.TypeCode actual   = SysCLREnum::contsruct(expected).enum();
+        ;
+
+        new InteropPermission(InteropKind::ClrInterop).assert();
+
+        this.assertTrue(actual.Equals(expected));
+    }
+
+    void testEqual_SysCLREnum()
+    {
+        SysCLREnum  expected = SysCLREnum::contsruct(CLRInterop::parseClrEnum('System.TypeCode','Boolean'));
+        SysCLREnum  typeCode = SysCLREnum::contsruct(expected.enum());
+        ;
+
+        this.assertTrue(typeCode.equal(expected));
+    }
+
+    void testEqual_SysCLREnum_NotEqual()
+    {
+        SysCLREnum  expected = SysCLREnum::contsruct(CLRInterop::parseClrEnum('System.TypeCode','Boolean'));
+        SysCLREnum  typeCode = SysCLREnum::contsruct(CLRInterop::parseClrEnum('System.TypeCode','Byte'));
+        ;
+
+        this.assertFalse(typeCode.equal(expected));
+    }
+
+    void testEqual_SystemEnum()
+    {
+        System.TypeCode expected = CLRInterop::parseClrEnum('System.TypeCode','Boolean');
+        SysCLREnum      typeCode = SysCLREnum::contsruct(expected);
+        ;
+
+        this.assertTrue(typeCode.equal(expected));
+    }
+
+    void testEqual_SystemEnum_NotEqual()
+    {
+        System.TypeCode expected = CLRInterop::parseClrEnum('System.TypeCode','Boolean');
+        SysCLREnum      typeCode = SysCLREnum::contsruct(CLRInterop::parseClrEnum('System.TypeCode','Byte'));
+        ;
+
+        this.assertFalse(typeCode.equal(expected));
+    }
+
+    void testFormat()
+    {
+        this.assertEquals('Byte', SysCLREnum::format(CLRInterop::parseClrEnum('System.TypeCode','Byte')));
+    }
+
+    void testFormatD()
+    {
+        this.assertEquals('6', SysCLREnum::format(CLRInterop::parseClrEnum('System.TypeCode','Byte'),'D'));
+    }
+
+    void testFormatG()
+    {
+        this.assertEquals('Byte', SysCLREnum::format(CLRInterop::parseClrEnum('System.TypeCode','Byte'),'G'));
+    }
+
+    void testFormatX()
+    {
+        this.assertEquals('00000006', SysCLREnum::format(CLRInterop::parseClrEnum('System.TypeCode','Byte'),'X'));
+    }
+
+    void testFromIdx_NotValid()
+    {
+        System.TypeCode typeCode = CLRInterop::parseClrEnum('System.TypeCode','Empty');
+        ;
+
+        new InteropPermission(InteropKind::ClrInterop).assert();
+
+        this.parmExceptionExpected(true);
+        SysCLREnum::fromIdx(typeCode.GetType(), 42);
+    }
+
+    void testFromIdx_Valid()
+    {
+        System.TypeCode typeCode = CLRInterop::parseClrEnum('System.TypeCode','Empty');
+        System.TypeCode expected = CLRInterop::parseClrEnum('System.TypeCode','Boolean');
+        System.Object   actual;
+        ;
+
+        new InteropPermission(InteropKind::ClrInterop).assert();
+
+        actual = SysCLREnum::fromIdx(typeCode.GetType(), 3);
+
+        this.assertTrue(actual.Equals(expected));
+    }
+
+    void testFromName_NotValid()
+    {
+        System.TypeCode typeCode = CLRInterop::parseClrEnum('System.TypeCode','Empty');
+        ;
+
+        new InteropPermission(InteropKind::ClrInterop).assert();
+
+        this.parmExceptionExpected(true);
+        SysCLREnum::fromName(typeCode.GetType(), 'bla-bla-bla');
+    }
+
+    void testFromName_Valid()
+    {
+        System.TypeCode typeCode = CLRInterop::parseClrEnum('System.TypeCode','Empty');
+        System.TypeCode expected = CLRInterop::parseClrEnum('System.TypeCode','Boolean');
+        System.Object   actual;
+        ;
+
+        new InteropPermission(InteropKind::ClrInterop).assert();
+
+        actual = SysCLREnum::fromName(typeCode.GetType(), 'Boolean');
+
+        this.assertTrue(actual.Equals(expected));
+    }
+
+    void testFromValue_NotValid()
+    {
+        System.TypeCode typeCode = CLRInterop::parseClrEnum('System.TypeCode','Empty');
+        ;
+
+        new InteropPermission(InteropKind::ClrInterop).assert();
+
+        this.parmExceptionExpected(true);
+        SysCLREnum::fromValue(typeCode.GetType(), 42);
+    }
+
+    void testFromValue_Valid()
+    {
+        System.TypeCode typeCode = CLRInterop::parseClrEnum('System.TypeCode','Empty');
+        System.TypeCode expected = CLRInterop::parseClrEnum('System.TypeCode','Boolean');
+        System.Object   actual;
+        ;
+
+        new InteropPermission(InteropKind::ClrInterop).assert();
+
+        actual = SysCLREnum::fromValue(typeCode.GetType(), 3);
+
+        this.assertTrue(actual.Equals(expected));
+    }
+
+    void testGetName()
+    {
+        SysCLREnum enum = SysCLREnum::contsruct(CLRInterop::parseClrEnum('System.TypeCode','Empty'));
+
+        this.assertEquals('Empty', enum.getName());
+        this.assertEquals('Boolean', enum.getName(3));
+    }
+
+    void testGetNames()
+    {
+        SysCLREnum enum = SysCLREnum::contsruct(CLRInterop::parseClrEnum('System.TypeCode','Empty'));
+        container  expected = ['Empty','Object','DBNull','Boolean','Char','SByte','Byte','Int16','UInt16','Int32','UInt32','Int64','UInt64','Single','Double','Decimal','DateTime','String'];
+
+        this.assertEquals(expected, enum.getNames());
+    }
+
+    void testGetValue()
+    {
+        SysCLREnum enum = SysCLREnum::contsruct(CLRInterop::parseClrEnum('System.TypeCode','Boolean'));
+
+        this.assertEquals(3, enum.getValue());
+    }
+
+    void testGetValues()
+    {
+        SysCLREnum enum = SysCLREnum::contsruct(CLRInterop::parseClrEnum('System.TypeCode','Empty'));
+        container  expected = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,18];
+
+        this.assertEquals(expected, enum.getValues());
+    }
+
+    void testIsDefined_Name()
+    {
+        SysCLREnum enum = SysCLREnum::contsruct(CLRInterop::parseClrEnum('System.TypeCode','Boolean'));
+
+        this.assertTrue(enum.isDefined('Byte'));
+
+        this.assertFalse(enum.isDefined('byte'));
+        this.assertFalse(enum.isDefined('BYTE'));
+        this.assertFalse(enum.isDefined('System.TypeCode'));
+
+    }
+
+    void testIsDefined_Value()
+    {
+        SysCLREnum enum = SysCLREnum::contsruct(CLRInterop::parseClrEnum('System.TypeCode','Boolean'));
+
+        this.assertTrue(enum.isDefined(2));
+
+        this.assertFalse(enum.isDefined(42));
+    }
+
+    void testName()
+    {
+        this.assertEquals('Boolean', SysCLREnum::name(CLRInterop::parseClrEnum('System.TypeCode','Boolean')));
+    }
+
+    void testNew()
+    {
+        SysCLREnum enum = new SysCLREnum(CLRInterop::parseClrEnum('System.TypeCode','Int32'));
+    }
+
+    void testNew_ClrNull()
+    {
+        SysCLREnum enum;
+        ;
+
+        this.parmExceptionExpected(true);
+        enum = new SysCLREnum(CLRInterop::Null('System.TypeCode'));
+    }
+
+    void testNew_NotEnum()
+    {
+        System.Object obj;
+        ;
+
+        this.parmExceptionExpected(true);
+        new SysCLREnum(obj);
+    }
+
+    void testNew_Null()
+    {
+        this.parmExceptionExpected(true);
+        new SysCLREnum(null);
+    }
+
+    void testParse_Name()
+    {
+        System.TypeCode typeCode = CLRInterop::parseClrEnum('System.TypeCode','Boolean');
+        System.Object   actual;
+
+        new InteropPermission(InteropKind::ClrInterop).assert();
+
+        actual = SysCLREnum::parse(typeCode.GetType(), 'Boolean');
+
+        this.assertTrue(actual.Equals(typeCode));
+    }
+
+    void testParse_Value()
+    {
+        System.TypeCode typeCode = CLRInterop::parseClrEnum('System.TypeCode','Boolean');
+        System.Object   actual;
+
+        new InteropPermission(InteropKind::ClrInterop).assert();
+
+        actual = SysCLREnum::parse(typeCode.GetType(), '3');
+
+        this.assertTrue(actual.Equals(typeCode));
+    }
+
+    void testToString()
+    {
+        SysCLREnum sysCLREnum = new SysCLREnum(CLRInterop::parseClrEnum('System.TypeCode','Byte'));
+        ;
+
+        this.assertEquals('Byte', sysCLREnum.toString());
+    }
+
+    void testToStringD()
+    {
+        SysCLREnum sysCLREnum = new SysCLREnum(CLRInterop::parseClrEnum('System.TypeCode','Byte'));
+        ;
+
+        this.assertEquals('6', sysCLREnum.toString('D'));
+    }
+
+    void testToStringG()
+    {
+        SysCLREnum sysCLREnum = new SysCLREnum(CLRInterop::parseClrEnum('System.TypeCode','Byte'));
+        ;
+
+        this.assertEquals('Byte', sysCLREnum.toString('G'));
+    }
+
+    void testToStringX()
+    {
+        SysCLREnum sysCLREnum = new SysCLREnum(CLRInterop::parseClrEnum('System.TypeCode','Byte'));
+        ;
+
+        this.assertEquals('00000006', sysCLREnum.toString('X'));
+    }
+
+    void testValue()
+    {
+        this.assertEquals(3, SysCLREnum::value(CLRInterop::parseClrEnum('System.TypeCode','Boolean')));
+        this.assertEquals(0, SysCLREnum::value(CLRInterop::parseClrEnum('System.TypeCode','Empty')));
+    }
+}

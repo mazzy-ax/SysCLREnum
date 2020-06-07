@@ -1,0 +1,706 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: SysCLREnum unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #SysCLREnum
+    PROPERTIES
+      Name                #SysCLREnum
+      Origin              #{92FAEDFD-A581-4BDC-A844-D2ADAC6537C3}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #//
+        #// mazzy, https://github.com/mazzy-ax/SysCLREnum
+        #//
+        #// класс-обертка для System.Enum
+        #// https://docs.microsoft.com/en-us/dotnet/api/system.enum
+        #class SysCLREnum
+        #{
+        #    System.Enum enum;
+        #}
+      ENDSOURCE
+      SOURCE #enum
+        #public System.Enum enum()
+        #{
+        #    return enum;
+        #}
+      ENDSOURCE
+      SOURCE #equal
+        #public boolean equal(Object other)
+        #{
+        #    boolean       ret;
+        #    System.Enum   thisEnum = this.enum();
+        #    System.Object otherObject;
+        #    ;
+        #
+        #    if( SysDictClass::is(other, classnum(CLRObject)) )
+        #    {
+        #        otherObject = other;
+        #    }
+        #    else if( other is SysCLREnum )
+        #    {
+        #        otherObject = other.enum();
+        #    }
+        #
+        #    new InteropPermission(InteropKind::ClrInterop).assert();
+        #
+        #    ret = thisEnum.Equals(otherObject);
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #getName
+        #public str getName(int value = this.getValue())
+        #{
+        #    str ret;
+        #    ;
+        #
+        #    new InteropPermission(InteropKind::ClrInterop).assert();
+        #
+        #    ret = System.Enum::GetName(enum.GetType(), value);
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #getNames
+        #public container getNames()
+        #{
+        #    container       ret;
+        #    System.Array    arr;
+        #    System.Object   value;
+        #    int             lowerBound;
+        #    int             upperBound;
+        #    int             i;
+        #    ;
+        #
+        #    new InteropPermission(InteropKind::ClrInterop).assert();
+        #
+        #    arr = System.Enum::GetNames(enum.GetType());
+        #    lowerBound = arr.GetLowerBound(0);
+        #    upperBound = arr.GetUpperBound(0);
+        #
+        #    for( i = lowerBound; i <= upperBound; i++ )
+        #    {
+        #        value = arr.GetValue(i);
+        #        ret += CLRInterop::getAnyTypeForObject(value);
+        #    }
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #getValue
+        #public int getValue()
+        #{
+        #    int ret;
+        #    ;
+        #
+        #    new InteropPermission(InteropKind::ClrInterop).assert();
+        #
+        #    ret = System.Convert::ToInt32(enum);
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #getValues
+        #public container getValues()
+        #{
+        #    container       ret;
+        #    System.Array    arr;
+        #    System.Object   value;
+        #    int             lowerBound;
+        #    int             upperBound;
+        #    int             i;
+        #    ;
+        #
+        #    new InteropPermission(InteropKind::ClrInterop).assert();
+        #
+        #    arr = System.Enum::GetValues(enum.GetType());
+        #    lowerBound = arr.GetLowerBound(0);
+        #    upperBound = arr.GetUpperBound(0);
+        #
+        #    for( i = lowerBound; i <= upperBound; i++ )
+        #    {
+        #        value = arr.GetValue(i);
+        #        ret += CLRInterop::getAnyTypeForObject(value);
+        #    }
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #isDefined
+        #public boolean isDefined(anytype valueOrName)
+        #{
+        #    boolean         ret;
+        #    System.Object   clrValueOrName = CLRInterop::getObjectForAnyType(valueOrName);
+        #    ;
+        #
+        #    new InteropPermission(InteropKind::ClrInterop).assert();
+        #
+        #    ret = System.Enum::IsDefined(enum.GetType(), clrValueOrName);
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #new
+        #public void new(System.Enum _enum)
+        #{
+        #    if( CLRInterop::isNull(_enum) )
+        #        throw error(Error::wrongUseOfFunction(funcname()));
+        #
+        #    enum = _enum;
+        #}
+      ENDSOURCE
+      SOURCE #toString
+        #public str toString(str format = 'G')
+        #{
+        #    str ret;
+        #    ;
+        #
+        #    new InteropPermission(InteropKind::ClrInterop).assert();
+        #
+        #    ret = enum.ToString(format);
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #contsruct
+        #public static SysCLREnum contsruct(System.Enum enum)
+        #{
+        #    SysCLREnum ret = new SysCLREnum(enum);
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #format
+        #public static str format(System.Enum enum, str format = 'G')
+        #{
+        #    str ret;
+        #    ;
+        #
+        #    new InteropPermission(InteropKind::ClrInterop).assert();
+        #
+        #    ret = System.Enum::Format(enum.GetType(), enum, format);
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #fromIdx
+        #public static System.Enum fromIdx(System.Type enumType, int idx = 0)
+        #{
+        #    System.Enum   ret;
+        #    System.Array  arr;
+        #    System.Object value;
+        #    ;
+        #
+        #    new InteropPermission(InteropKind::ClrInterop).assert();
+        #
+        #    arr   = System.Enum::GetValues(enumType);
+        #    idx  += CLRInterop::getAnyTypeForObject(arr.GetLowerBound(0));
+        #    value = arr.GetValue(idx);
+        #    ret   = System.Enum::ToObject(enumType, value);
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #fromName
+        #public static System.Enum fromName(System.Type enumType, str name)
+        #{
+        #    return SysCLREnum::parse(enumType, name);
+        #}
+      ENDSOURCE
+      SOURCE #fromValue
+        #public static System.Enum fromValue(System.Type enumType, int value)
+        #{
+        #    System.Enum ret;
+        #    ;
+        #
+        #    new InteropPermission(InteropKind::ClrInterop).assert();
+        #
+        #    if( !System.Enum::IsDefined(enumType, value) )
+        #        throw error(strfmt('Value %1 is not defined for Enum %2', value, CLRInterop::getAnyTypeForObject(enumType.get_FullName())));
+        #
+        #    ret = System.Enum::ToObject(enumType, value);
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #name
+        #public static str name(System.Enum enum)
+        #{
+        #    str ret;
+        #    ;
+        #
+        #    new InteropPermission(InteropKind::ClrInterop).assert();
+        #
+        #    ret = System.Enum::GetName(enum.GetType(), enum);
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #newFromIdx
+        #public static SysCLREnum newFromIdx(System.Type enumType, int idx = 0)
+        #{
+        #    System.Enum   enum = SysCLREnum::fromIdx(enumType, idx);
+        #    SysCLREnum    ret  = SysCLREnum::contsruct(enum);
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #newFromName
+        #public static SysCLREnum newFromName(System.Type enumType, str name, boolean ignoreCase = true)
+        #{
+        #    System.Enum enum = SysCLREnum::parse(enumType, name, true);
+        #    SysCLREnum  ret  = SysCLREnum::contsruct(enum);
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #newFromValue
+        #public static SysCLREnum newFromValue(System.Type enumType, int value)
+        #{
+        #    System.Enum enum = SysCLREnum::fromValue(enumType, value);
+        #    SysCLREnum  ret  = SysCLREnum::contsruct(enum);
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #parse
+        #public static System.Enum parse(System.Type enumType, str nameOrValue, boolean ignoreCase = true)
+        #{
+        #    System.Enum enum;
+        #    ;
+        #
+        #    new InteropPermission(InteropKind::ClrInterop).assert();
+        #
+        #    enum = System.Enum::Parse(enumType, nameOrValue, ignoreCase);
+        #
+        #    return enum;
+        #}
+      ENDSOURCE
+      SOURCE #value
+        #public static int value(System.Enum enum)
+        #{
+        #    int ret;
+        #    ;
+        #
+        #    new InteropPermission(InteropKind::ClrInterop).assert();
+        #
+        #    ret = System.Convert::ToInt32(enum);
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: SysCLREnumTest unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #SysCLREnumTest
+    PROPERTIES
+      Name                #SysCLREnumTest
+      Extends             #SysTestCase
+      Origin              #{EF1DE5CF-DA90-4F4F-990B-67332499BB4A}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #//
+        #// mazzy, https://github.com/mazzy-ax/SysCLREnum
+        #//
+        #class SysCLREnumTest extends SysTestCase
+        #{
+        #}
+      ENDSOURCE
+      SOURCE #testConstruct
+        #void testConstruct()
+        #{
+        #    SysCLREnum enum = SysCLREnum::contsruct(System.TypeCode::Int32);
+        #}
+      ENDSOURCE
+      SOURCE #testConstruct_NotEnum
+        #void testConstruct_NotEnum()
+        #{
+        #    System.Object obj;
+        #    ;
+        #
+        #    this.parmExceptionExpected(true);
+        #    SysCLREnum::contsruct(obj);
+        #}
+      ENDSOURCE
+      SOURCE #testConstruct_Null
+        #void testConstruct_Null()
+        #{
+        #    this.parmExceptionExpected(true);
+        #    SysCLREnum::contsruct(null);
+        #}
+      ENDSOURCE
+      SOURCE #testEnum
+        #void testEnum()
+        #{
+        #    System.TypeCode expected = System.TypeCode::Boolean;
+        #    System.TypeCode actual   = SysCLREnum::contsruct(expected).enum();
+        #    ;
+        #
+        #    new InteropPermission(InteropKind::ClrInterop).assert();
+        #
+        #    this.assertTrue(actual.Equals(expected));
+        #}
+      ENDSOURCE
+      SOURCE #testEqual_SysCLREnum
+        #void testEqual_SysCLREnum()
+        #{
+        #    SysCLREnum  expected = SysCLREnum::contsruct(System.TypeCode::Boolean);
+        #    SysCLREnum  typeCode = SysCLREnum::contsruct(expected.enum());
+        #    ;
+        #
+        #    this.assertTrue(typeCode.equal(expected));
+        #}
+      ENDSOURCE
+      SOURCE #testEqual_SysCLREnum_NotEqual
+        #void testEqual_SysCLREnum_NotEqual()
+        #{
+        #    SysCLREnum  expected = SysCLREnum::contsruct(System.TypeCode::Boolean);
+        #    SysCLREnum  typeCode = SysCLREnum::contsruct(System.TypeCode::Byte);
+        #    ;
+        #
+        #    this.assertFalse(typeCode.equal(expected));
+        #}
+      ENDSOURCE
+      SOURCE #testEqual_SystemEnum
+        #void testEqual_SystemEnum()
+        #{
+        #    SysCLREnum      typeCode = SysCLREnum::contsruct(System.TypeCode::Boolean);
+        #    ;
+        #
+        #    new InteropPermission(InteropKind::ClrInterop).assert();
+        #
+        #    this.assertTrue(typeCode.equal(System.TypeCode::Boolean));
+        #}
+      ENDSOURCE
+      SOURCE #testEqual_SystemEnum_NotEqual
+        #void testEqual_SystemEnum_NotEqual()
+        #{
+        #    SysCLREnum      typeCode = SysCLREnum::contsruct(System.TypeCode::Byte);
+        #    ;
+        #
+        #    new InteropPermission(InteropKind::ClrInterop).assert();
+        #
+        #    this.assertFalse(typeCode.equal(System.TypeCode::Boolean));
+        #}
+      ENDSOURCE
+      SOURCE #testFormat
+        #void testFormat()
+        #{
+        #    this.assertEquals('Byte', SysCLREnum::format(System.TypeCode::Byte));
+        #}
+      ENDSOURCE
+      SOURCE #testFormatD
+        #void testFormatD()
+        #{
+        #    this.assertEquals('6', SysCLREnum::format(System.TypeCode::Byte,'D'));
+        #}
+      ENDSOURCE
+      SOURCE #testFormatG
+        #void testFormatG()
+        #{
+        #    this.assertEquals('Byte', SysCLREnum::format(System.TypeCode::Byte,'G'));
+        #}
+      ENDSOURCE
+      SOURCE #testFormatX
+        #void testFormatX()
+        #{
+        #    this.assertEquals('00000006', SysCLREnum::format(System.TypeCode::Byte,'X'));
+        #}
+      ENDSOURCE
+      SOURCE #testFromIdx_NotValid
+        #void testFromIdx_NotValid()
+        #{
+        #    System.TypeCode typeCode = System.TypeCode::Empty;
+        #    ;
+        #
+        #    new InteropPermission(InteropKind::ClrInterop).assert();
+        #
+        #    this.parmExceptionExpected(true);
+        #    SysCLREnum::fromIdx(typeCode.GetType(), 42);
+        #}
+      ENDSOURCE
+      SOURCE #testFromIdx_Valid
+        #void testFromIdx_Valid()
+        #{
+        #    System.TypeCode typeCode = System.TypeCode::Empty;
+        #    System.TypeCode expected = System.TypeCode::Boolean;
+        #    System.TypeCode actual;
+        #    ;
+        #
+        #    new InteropPermission(InteropKind::ClrInterop).assert();
+        #
+        #    actual = SysCLREnum::fromIdx(typeCode.GetType(), 3);
+        #
+        #    this.assertTrue(actual.Equals(expected));
+        #}
+      ENDSOURCE
+      SOURCE #testFromName_NotValid
+        #void testFromName_NotValid()
+        #{
+        #    System.TypeCode typeCode = System.TypeCode::Empty;
+        #    ;
+        #
+        #    new InteropPermission(InteropKind::ClrInterop).assert();
+        #
+        #    this.parmExceptionExpected(true);
+        #    SysCLREnum::fromName(typeCode.GetType(), 'bla-bla-bla');
+        #}
+      ENDSOURCE
+      SOURCE #testFromName_Valid
+        #void testFromName_Valid()
+        #{
+        #    System.TypeCode typeCode = System.TypeCode::Empty;
+        #    System.TypeCode expected = System.TypeCode::Boolean;
+        #    System.TypeCode actual;
+        #    ;
+        #
+        #    new InteropPermission(InteropKind::ClrInterop).assert();
+        #
+        #    actual = SysCLREnum::fromName(typeCode.GetType(), 'Boolean');
+        #
+        #    this.assertTrue(actual.Equals(expected));
+        #}
+      ENDSOURCE
+      SOURCE #testFromValue_NotValid
+        #void testFromValue_NotValid()
+        #{
+        #    System.TypeCode typeCode = System.TypeCode::Empty;
+        #    ;
+        #
+        #    new InteropPermission(InteropKind::ClrInterop).assert();
+        #
+        #    this.parmExceptionExpected(true);
+        #    SysCLREnum::fromValue(typeCode.GetType(), 42);
+        #}
+      ENDSOURCE
+      SOURCE #testFromValue_Valid
+        #void testFromValue_Valid()
+        #{
+        #    System.TypeCode typeCode = System.TypeCode::Empty;
+        #    System.TypeCode expected = System.TypeCode::Boolean;
+        #    System.TypeCode actual;
+        #    ;
+        #
+        #    new InteropPermission(InteropKind::ClrInterop).assert();
+        #
+        #    actual = SysCLREnum::fromValue(typeCode.GetType(), 3);
+        #
+        #    this.assertTrue(actual.Equals(expected));
+        #}
+      ENDSOURCE
+      SOURCE #testGetName
+        #void testGetName()
+        #{
+        #    SysCLREnum enum = SysCLREnum::contsruct(System.TypeCode::Empty);
+        #
+        #    this.assertEquals('Empty', enum.getName());
+        #    this.assertEquals('Boolean', enum.getName(3));
+        #}
+      ENDSOURCE
+      SOURCE #testGetNames
+        #void testGetNames()
+        #{
+        #    SysCLREnum enum = SysCLREnum::contsruct(System.TypeCode::Empty);
+        #    container  expected = ['Empty','Object','DBNull','Boolean','Char','SByte','Byte','Int16','UInt16','Int32','UInt32','Int64','UInt64','Single','Double','Decimal','DateTime','String'];
+        #
+        #    this.assertEquals(expected, enum.getNames());
+        #}
+      ENDSOURCE
+      SOURCE #testGetValue
+        #void testGetValue()
+        #{
+        #    SysCLREnum enum = SysCLREnum::contsruct(System.TypeCode::Boolean);
+        #
+        #    this.assertEquals(3, enum.getValue());
+        #}
+      ENDSOURCE
+      SOURCE #testGetValues
+        #void testGetValues()
+        #{
+        #    SysCLREnum enum = SysCLREnum::contsruct(System.TypeCode::Empty);
+        #    container  expected = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,18];
+        #
+        #    this.assertEquals(expected, enum.getValues());
+        #}
+      ENDSOURCE
+      SOURCE #testIsDefined_Name
+        #void testIsDefined_Name()
+        #{
+        #    SysCLREnum enum = SysCLREnum::contsruct(System.TypeCode::Boolean);
+        #
+        #    this.assertTrue(enum.isDefined('Byte'));
+        #
+        #    this.assertFalse(enum.isDefined('byte'));
+        #    this.assertFalse(enum.isDefined('BYTE'));
+        #    this.assertFalse(enum.isDefined('System.TypeCode'));
+        #
+        #}
+      ENDSOURCE
+      SOURCE #testIsDefined_Value
+        #void testIsDefined_Value()
+        #{
+        #    SysCLREnum enum = SysCLREnum::contsruct(System.TypeCode::Boolean);
+        #
+        #    this.assertTrue(enum.isDefined(2));
+        #
+        #    this.assertFalse(enum.isDefined(42));
+        #}
+      ENDSOURCE
+      SOURCE #testName
+        #void testName()
+        #{
+        #    this.assertEquals('Boolean', SysCLREnum::name(System.TypeCode::Boolean));
+        #}
+      ENDSOURCE
+      SOURCE #testNew
+        #void testNew()
+        #{
+        #    SysCLREnum enum = new SysCLREnum(System.TypeCode::Int32);
+        #}
+      ENDSOURCE
+      SOURCE #testNew_ClrNull
+        #void testNew_ClrNull()
+        #{
+        #    SysCLREnum enum;
+        #    ;
+        #
+        #    this.parmExceptionExpected(true);
+        #    enum = new SysCLREnum(CLRInterop::Null('System.TypeCode'));
+        #}
+      ENDSOURCE
+      SOURCE #testNew_NotEnum
+        #void testNew_NotEnum()
+        #{
+        #    System.Object obj;
+        #    ;
+        #
+        #    this.parmExceptionExpected(true);
+        #    new SysCLREnum(obj);
+        #}
+      ENDSOURCE
+      SOURCE #testNew_Null
+        #void testNew_Null()
+        #{
+        #    this.parmExceptionExpected(true);
+        #    new SysCLREnum(null);
+        #}
+      ENDSOURCE
+      SOURCE #testParse_Name
+        #void testParse_Name()
+        #{
+        #    System.TypeCode typeCode = System.TypeCode::Boolean;
+        #    System.Enum     actual;
+        #
+        #    new InteropPermission(InteropKind::ClrInterop).assert();
+        #
+        #    actual = SysCLREnum::parse(typeCode.GetType(), 'Boolean');
+        #
+        #    this.assertTrue(actual.Equals(typeCode));
+        #}
+      ENDSOURCE
+      SOURCE #testParse_Value
+        #void testParse_Value()
+        #{
+        #    System.TypeCode typeCode = System.TypeCode::Boolean;
+        #    System.Enum     actual;
+        #
+        #    new InteropPermission(InteropKind::ClrInterop).assert();
+        #
+        #    actual = SysCLREnum::parse(typeCode.GetType(), '3');
+        #
+        #    this.assertTrue(actual.Equals(typeCode));
+        #}
+      ENDSOURCE
+      SOURCE #testToString
+        #void testToString()
+        #{
+        #    SysCLREnum sysCLREnum = new SysCLREnum(System.TypeCode::Byte);
+        #    ;
+        #
+        #    this.assertEquals('Byte', sysCLREnum.toString());
+        #}
+      ENDSOURCE
+      SOURCE #testToStringD
+        #void testToStringD()
+        #{
+        #    SysCLREnum sysCLREnum = new SysCLREnum(System.TypeCode::Byte);
+        #    ;
+        #
+        #    this.assertEquals('6', sysCLREnum.toString('D'));
+        #}
+      ENDSOURCE
+      SOURCE #testToStringG
+        #void testToStringG()
+        #{
+        #    SysCLREnum sysCLREnum = new SysCLREnum(System.TypeCode::Byte);
+        #    ;
+        #
+        #    this.assertEquals('Byte', sysCLREnum.toString('G'));
+        #}
+      ENDSOURCE
+      SOURCE #testToStringX
+        #void testToStringX()
+        #{
+        #    SysCLREnum sysCLREnum = new SysCLREnum(System.TypeCode::Byte);
+        #    ;
+        #
+        #    this.assertEquals('00000006', sysCLREnum.toString('X'));
+        #}
+      ENDSOURCE
+      SOURCE #testValue
+        #void testValue()
+        #{
+        #    this.assertEquals(3, SysCLREnum::value(System.TypeCode::Boolean));
+        #    this.assertEquals(0, SysCLREnum::value(System.TypeCode::Empty));
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: PRN
+
+; Microsoft Dynamics AX Project : SysCLREnum unloaded
+; --------------------------------------------------------------------------------
+  PROJECTVERSION 2
+  
+  PROJECT #SysCLREnum
+  SHARED
+  PROPERTIES
+    Name                #SysCLREnum
+    Origin              #{00FD9018-B834-4B30-BC0D-85735960BCC1}
+  ENDPROPERTIES
+  
+    PROJECTCLASS ProjectNode
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 45
+      UTILOBJECTID 1023832
+      NODETYPE 329
+      NAME #SysCLREnum
+    ENDNODE
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 45
+      UTILOBJECTID 1023833
+      NODETYPE 329
+      NAME #SysCLREnumTest
+    ENDNODE
+  ENDPROJECT
+  
+
+***Element: END
