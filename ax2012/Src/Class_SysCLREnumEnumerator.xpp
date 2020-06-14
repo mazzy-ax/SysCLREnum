@@ -1,0 +1,206 @@
+﻿class SysCLREnumEnumerator implements Enumerator
+{
+    SysCLREnum enum;
+    int        currentIdx;  // 0 -> до первого moveNext, -1 после последнего moveNext
+
+    // lazy variables. use only methods to read these.
+    container  values;
+    container  names;
+    int        elements;
+
+    protected void assertCurrentDefined()
+    {
+        if( !this.isCurrentDefined() )
+            throw error("The iterator does not designate a valid element.");    // ktd #262
+    }
+
+    public anytype current()
+    {
+        anytype ret;
+
+        this.assertCurrentDefined();
+
+        ret = conpeek(this.values(), currentIdx);
+
+        return ret;
+    }
+
+    public str currentName()
+    {
+        anytype ret;
+
+        this.assertCurrentDefined();
+
+        ret = conpeek(this.names(), currentIdx);
+
+        return ret;
+    }
+
+    public str definitionString()
+    {
+        System.Type   enumType = enum.type();
+        System.String enumTypeName;
+        str           ret;
+        ;
+
+        new InteropPermission(InteropKind::ClrInterop).assert();
+
+        enumTypeName = enumType.get_FullName();
+
+        ret = enumTypeName;
+
+        return ret;
+    }
+
+    public int estimatedIterations()
+    {
+        if( !elements )
+            elements = conlen(this.values());
+
+        return elements;
+    }
+
+    protected boolean isCurrentDefined()
+    {
+        return ( currentIdx > 0 );
+    }
+
+    public boolean moveNext()
+    {
+        if( currentIdx < 0 )
+        {
+            return false;
+        }
+
+        if( currentIdx >= this.estimatedIterations() )
+        {
+            currentIdx = -1;
+            return false;
+        }
+
+        currentIdx++;
+        return true;
+    }
+
+    public container names()
+    {
+        if( !names )
+            names = enum.getNames();
+
+        return names;
+    }
+
+    void new(SysCLREnum _enum)
+    {
+        if( !_enum )
+            throw error(Error::wrongUseOfFunction(funcname()));
+
+        enum = _enum;
+
+        this.reset();
+    }
+
+    public void reset()
+    {
+        currentIdx = 0;
+    }
+
+    // метод билдер: можно вызывать в одной строке после конструктора
+    //
+    // например:
+    //    enumEnumerator = SysCLREnumEnumerator::construct(enum).setCurrent(enumValue);
+    //
+    public SysCLREnumEnumerator setCurrent(int enumValue)
+    {
+        int pos = confind(this.values(), enumValue);
+
+        if( pos )
+        {
+            currentIdx = pos;
+        }
+        else
+        {
+            // не найдено -> больше элементов возвращаться не будет
+            currentIdx = -1;
+        }
+
+        return this;
+    }
+
+    // метод использует знание о внутреннем устройстве класса
+    public str toString(int maxElements = 10)
+    {
+        str         ret;
+        int         i;
+        TextBuffer  text;
+
+        str elementString(int idx)
+        {
+            return strfmt('%1=%2',
+                    conpeek(this.names(), idx),
+                    conpeek(this.values(), idx)
+            );
+        }
+        ;
+
+        if( this.isCurrentDefined() )
+        {
+            ret = strfmt('[%1]', elementString(currentIdx));
+        }
+        else
+        {
+            text = new TextBuffer();
+            text.appendText('{');
+
+            for( i=1; i<=maxElements && i<=this.estimatedIterations(); i++ )
+            {
+                if( i>1 )
+                    text.appendText(',');
+
+                text.appendText(elementString(i));
+            }
+
+            if( maxElements < this.estimatedIterations() )
+            {
+                text.appendText(',...');
+            }
+
+            text.appendText('}');
+            ret = text.getText();
+        }
+
+        return ret;
+    }
+
+    public container values()
+    {
+        if( !values )
+            values = enum.getValues();
+
+        return values;
+    }
+
+    public static SysCLREnumEnumerator construct(SysCLREnum enum)
+    {
+        SysCLREnumEnumerator ret = new SysCLREnumEnumerator(enum);
+        ;
+
+        return ret;
+    }
+
+    public static SysCLREnumEnumerator newFromCLREnum(System.Enum _enum)
+    {
+        SysCLREnum           enum = SysCLREnum::contsruct(_enum);
+        SysCLREnumEnumerator ret  = SysCLREnumEnumerator::construct(enum);
+
+        return ret;
+    }
+
+    public static SysCLREnumEnumerator newFromCLRType(System.Type _type)
+    {
+        SysCLREnum           enum = SysCLREnum::newFromIdx(_type, 0);
+        SysCLREnumEnumerator ret  = SysCLREnumEnumerator::construct(enum);
+
+        return ret;
+    }
+}

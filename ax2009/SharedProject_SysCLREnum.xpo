@@ -22,7 +22,7 @@ Formatversion: 1
         #//
         #// класс-обертка для System.Enum
         #// https://docs.microsoft.com/en-us/dotnet/api/system.enum
-        #class SysCLREnum
+        #class SysCLREnum implements Enumerable
         #{
         #    System.Enum enum;
         #}
@@ -55,6 +55,14 @@ Formatversion: 1
         #    ret = thisEnum.Equals(otherObject);
         #
         #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #getEnumerator
+        #public SysCLREnumEnumerator getEnumerator()
+        #{
+        #    SysCLREnumEnumerator enumerator = SysCLREnumEnumerator::construct(this);
+        #
+        #    return enumerator;
         #}
       ENDSOURCE
       SOURCE #getName
@@ -171,6 +179,14 @@ Formatversion: 1
         #    return ret;
         #}
       ENDSOURCE
+      SOURCE #type
+        #public System.Type type()
+        #{
+        #    System.Type type = enum.GetType();
+        #
+        #    return type;
+        #}
+      ENDSOURCE
       SOURCE #contsruct
         #public static SysCLREnum contsruct(System.Enum enum)
         #{
@@ -193,6 +209,8 @@ Formatversion: 1
         #}
       ENDSOURCE
       SOURCE #fromIdx
+        #// Внимание! Всегда запрашивает все значения enum. Потенциально медленный метод.
+        #// нумерация с нуля
         #public static System.Enum fromIdx(System.Type enumType, int idx = 0)
         #{
         #    System.Enum   ret;
@@ -382,21 +400,23 @@ Formatversion: 1
       SOURCE #testEqual_SystemEnum
         #void testEqual_SystemEnum()
         #{
-        #    System.TypeCode expected = System.TypeCode::Boolean;
-        #    SysCLREnum      typeCode = SysCLREnum::contsruct(expected);
+        #    SysCLREnum  typeCode = SysCLREnum::contsruct(System.TypeCode::Boolean);
         #    ;
         #
-        #    this.assertTrue(typeCode.equal(expected));
+        #    new InteropPermission(InteropKind::ClrInterop).assert();
+        #
+        #    this.assertTrue(typeCode.equal(System.TypeCode::Boolean));
         #}
       ENDSOURCE
       SOURCE #testEqual_SystemEnum_NotEqual
         #void testEqual_SystemEnum_NotEqual()
         #{
-        #    System.TypeCode expected = System.TypeCode::Boolean;
-        #    SysCLREnum      typeCode = SysCLREnum::contsruct(System.TypeCode::Byte);
+        #    SysCLREnum  typeCode = SysCLREnum::contsruct(System.TypeCode::Byte);
         #    ;
         #
-        #    this.assertFalse(typeCode.equal(expected));
+        #    new InteropPermission(InteropKind::ClrInterop).assert();
+        #
+        #    this.assertFalse(typeCode.equal(System.TypeCode::Boolean));
         #}
       ENDSOURCE
       SOURCE #testFormat
@@ -504,6 +524,17 @@ Formatversion: 1
         #    this.assertTrue(actual.Equals(expected));
         #}
       ENDSOURCE
+      SOURCE #testGetEnumerator
+        #void testGetEnumerator()
+        #{
+        #    SysCLREnum enum = SysCLREnum::contsruct(System.TypeCode::Int32);
+        #    SysCLREnumEnumerator enumEnumerator = enum.getEnumerator();
+        #    ;
+        #
+        #    this.assertNotNull(enumEnumerator);
+        #    this.assertTrue(SysDictClass::is(enumEnumerator, classnum(SysCLREnumEnumerator)));
+        #}
+      ENDSOURCE
       SOURCE #testGetName
         #void testGetName()
         #{
@@ -537,6 +568,15 @@ Formatversion: 1
         #    container  expected = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,18];
         #
         #    this.assertEquals(expected, enum.getValues());
+        #}
+      ENDSOURCE
+      SOURCE #testImplementEnumerable
+        #void testImplementEnumerable()
+        #{
+        #    SysDictClass enumClass = new SysDictClass(classnum(SysCLREnum));
+        #    ;
+        #
+        #    this.assertTrue(enumClass.isImplementing(classnum(Enumerable)));
         #}
       ENDSOURCE
       SOURCE #testIsDefined_Name
@@ -673,6 +713,579 @@ Formatversion: 1
     ENDMETHODS
   ENDCLASS
 
+***Element: CLS
+
+; Microsoft Dynamics AX Class: SysCLREnumEnumerator unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #SysCLREnumEnumerator
+    PROPERTIES
+      Name                #SysCLREnumEnumerator
+      Extends             #
+      RunOn               #Called from
+    ENDPROPERTIES
+    
+    METHODS
+      Version: 3
+      SOURCE #assertCurrentDefined
+        #protected void assertCurrentDefined()
+        #{
+        #    if( !this.isCurrentDefined() )
+        #        throw error("The iterator does not designate a valid element.");    // ktd #262
+        #}
+      ENDSOURCE
+      SOURCE #classDeclaration
+        #class SysCLREnumEnumerator implements Enumerator
+        #{
+        #    SysCLREnum enum;
+        #    int        currentIdx;  // 0 -> до первого moveNext, -1 после последнего moveNext
+        #
+        #    // lazy variables. use only methods to read these.
+        #    container  values;
+        #    container  names;
+        #    int        elements;
+        #}
+      ENDSOURCE
+      SOURCE #current
+        #public anytype current()
+        #{
+        #    anytype ret;
+        #
+        #    this.assertCurrentDefined();
+        #
+        #    ret = conpeek(this.values(), currentIdx);
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #currentName
+        #public str currentName()
+        #{
+        #    anytype ret;
+        #
+        #    this.assertCurrentDefined();
+        #
+        #    ret = conpeek(this.names(), currentIdx);
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #definitionString
+        #public str definitionString()
+        #{
+        #    System.Type   enumType = enum.type();
+        #    System.String enumTypeName;
+        #    str           ret;
+        #    ;
+        #
+        #    new InteropPermission(InteropKind::ClrInterop).assert();
+        #
+        #    enumTypeName = enumType.get_FullName();
+        #
+        #    ret = enumTypeName;
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #estimatedIterations
+        #public int estimatedIterations()
+        #{
+        #    if( !elements )
+        #        elements = conlen(this.values());
+        #
+        #    return elements;
+        #}
+      ENDSOURCE
+      SOURCE #isCurrentDefined
+        #protected boolean isCurrentDefined()
+        #{
+        #    return ( currentIdx > 0 );
+        #}
+      ENDSOURCE
+      SOURCE #moveNext
+        #public boolean moveNext()
+        #{
+        #    if( currentIdx < 0 )
+        #    {
+        #        return false;
+        #    }
+        #
+        #    if( currentIdx >= this.estimatedIterations() )
+        #    {
+        #        currentIdx = -1;
+        #        return false;
+        #    }
+        #
+        #    currentIdx++;
+        #    return true;
+        #}
+      ENDSOURCE
+      SOURCE #names
+        #public container names()
+        #{
+        #    if( !names )
+        #        names = enum.getNames();
+        #
+        #    return names;
+        #}
+      ENDSOURCE
+      SOURCE #new
+        #void new(SysCLREnum _enum)
+        #{
+        #    if( !_enum )
+        #        throw error(Error::wrongUseOfFunction(funcname()));
+        #
+        #    enum = _enum;
+        #
+        #    this.reset();
+        #}
+      ENDSOURCE
+      SOURCE #reset
+        #public void reset()
+        #{
+        #    currentIdx = 0;
+        #}
+      ENDSOURCE
+      SOURCE #setCurrent
+        #// метод билдер: можно вызывать в одной строке после конструктора
+        #//
+        #// например:
+        #//    enumEnumerator = SysCLREnumEnumerator::construct(enum).setCurrent(enumValue);
+        #//
+        #public SysCLREnumEnumerator setCurrent(int enumValue)
+        #{
+        #    int pos = confind(this.values(), enumValue);
+        #
+        #    if( pos )
+        #    {
+        #        currentIdx = pos;
+        #    }
+        #    else
+        #    {
+        #        // не найдено -> больше элементов возвращаться не будет
+        #        currentIdx = -1;
+        #    }
+        #
+        #    return this;
+        #}
+      ENDSOURCE
+      SOURCE #toString
+        #// метод использует знание о внутреннем устройстве класса
+        #public str toString(int maxElements = 10)
+        #{
+        #    str         ret;
+        #    int         i;
+        #    TextBuffer  text;
+        #
+        #    str elementString(int idx)
+        #    {
+        #        return strfmt('%1=%2',
+        #                conpeek(this.names(), idx),
+        #                conpeek(this.values(), idx)
+        #        );
+        #    }
+        #    ;
+        #
+        #    if( this.isCurrentDefined() )
+        #    {
+        #        ret = strfmt('[%1]', elementString(currentIdx));
+        #    }
+        #    else
+        #    {
+        #        text = new TextBuffer();
+        #        text.appendText('{');
+        #
+        #        for( i=1; i<=maxElements && i<=this.estimatedIterations(); i++ )
+        #        {
+        #            if( i>1 )
+        #                text.appendText(',');
+        #
+        #            text.appendText(elementString(i));
+        #        }
+        #
+        #        if( maxElements < this.estimatedIterations() )
+        #        {
+        #            text.appendText(',...');
+        #        }
+        #
+        #        text.appendText('}');
+        #        ret = text.getText();
+        #    }
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #values
+        #public container values()
+        #{
+        #    if( !values )
+        #        values = enum.getValues();
+        #
+        #    return values;
+        #}
+      ENDSOURCE
+      SOURCE #construct
+        #public static SysCLREnumEnumerator construct(SysCLREnum enum)
+        #{
+        #    SysCLREnumEnumerator ret = new SysCLREnumEnumerator(enum);
+        #    ;
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #newFromCLREnum
+        #public static SysCLREnumEnumerator newFromCLREnum(System.Enum _enum)
+        #{
+        #    SysCLREnum           enum = SysCLREnum::contsruct(_enum);
+        #    SysCLREnumEnumerator ret  = SysCLREnumEnumerator::construct(enum);
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+      SOURCE #newFromCLRType
+        #public static SysCLREnumEnumerator newFromCLRType(System.Type _type)
+        #{
+        #    SysCLREnum           enum = SysCLREnum::newFromIdx(_type, 0);
+        #    SysCLREnumEnumerator ret  = SysCLREnumEnumerator::construct(enum);
+        #
+        #    return ret;
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: SysCLREnumEnumeratorTest unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #SysCLREnumEnumeratorTest
+    PROPERTIES
+      Name                #SysCLREnumEnumeratorTest
+      Extends             #SysTestCase
+      RunOn               #Called from
+    ENDPROPERTIES
+    
+    METHODS
+      Version: 3
+      SOURCE #classDeclaration
+        #class SysCLREnumEnumeratorTest extends SysTestCase
+        #{
+        #}
+      ENDSOURCE
+      SOURCE #testConstruct
+        #void testConstruct()
+        #{
+        #    SysCLREnum           enum           = SysCLREnum::contsruct(System.TypeCode::Int32);
+        #    SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::construct(enum);
+        #    ;
+        #
+        #    this.assertNotNull(enumEnumerator);
+        #}
+      ENDSOURCE
+      SOURCE #testConstruct_Null
+        #void testConstruct_Null()
+        #{
+        #    this.parmExceptionExpected(true);
+        #
+        #    SysCLREnumEnumerator::construct(null);
+        #}
+      ENDSOURCE
+      SOURCE #testCurrent
+        #void testCurrent()
+        #{
+        #    SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.TypeCode::Int32);
+        #    ;
+        #
+        #    enumEnumerator.moveNext();
+        #    enumEnumerator.moveNext();
+        #    enumEnumerator.moveNext();
+        #    enumEnumerator.moveNext();
+        #
+        #    this.assertEquals(3, enumEnumerator.current());
+        #}
+      ENDSOURCE
+      SOURCE #testCurrent_After
+        #void testCurrent_After()
+        #{
+        #    SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.TypeCode::Int32);
+        #    int dummy;
+        #    ;
+        #
+        #    while( enumEnumerator.moveNext() )
+        #    {
+        #        dummy = 0; // to avoid the 'Empty compound statement' warning
+        #    }
+        #
+        #    this.parmExceptionExpected(true);
+        #    enumEnumerator.current();
+        #}
+      ENDSOURCE
+      SOURCE #testCurrent_Before
+        #void testCurrent_Before()
+        #{
+        #    SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.TypeCode::Int32);
+        #    ;
+        #
+        #    this.parmExceptionExpected(true);
+        #    enumEnumerator.current();
+        #}
+      ENDSOURCE
+      SOURCE #testDefinitionString
+        #void testDefinitionString()
+        #{
+        #    SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.TypeCode::Int32);
+        #    ;
+        #
+        #    this.assertEquals('System.TypeCode', enumEnumerator.definitionString());
+        #
+        #}
+      ENDSOURCE
+      SOURCE #testEstimatedIterations
+        #void testEstimatedIterations()
+        #{
+        #    SysCLREnum           enum           = SysCLREnum::contsruct(System.TypeCode::Int32);
+        #    SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::construct(enum);
+        #    ;
+        #
+        #    this.assertEquals(18, enumEnumerator.estimatedIterations());
+        #}
+      ENDSOURCE
+      SOURCE #testImplementEnumerator
+        #void testImplementEnumerator()
+        #{
+        #    SysDictClass enumClass = new SysDictClass(classnum(SysCLREnumEnumerator));
+        #    ;
+        #
+        #    this.assertTrue(enumClass.isImplementing(classnum(Enumerator)));
+        #}
+      ENDSOURCE
+      SOURCE #testNames
+        #void testNames()
+        #{
+        #    SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.StringSplitOptions::None);
+        #    ;
+        #
+        #    this.assertEquals(['None','RemoveEmptyEntries'], enumEnumerator.names());
+        #}
+      ENDSOURCE
+      SOURCE #testNewCLREnum
+        #void testNewCLREnum()
+        #{
+        #    SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.TypeCode::Int32);
+        #    ;
+        #
+        #    this.assertNotNull(enumEnumerator);
+        #}
+      ENDSOURCE
+      SOURCE #testNewCLREnum_Null
+        #void testNewCLREnum_Null()
+        #{
+        #    this.parmExceptionExpected(true);
+        #    SysCLREnumEnumerator::newFromCLREnum(CLRInterop::Null('System.TypeCode'));
+        #}
+      ENDSOURCE
+      SOURCE #testNewCLRType
+        #void testNewCLRType()
+        #{
+        #    SysCLRType           type           = SysCLRType::newFromTypeName('System.TypeCode');
+        #    SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLRType(type.parmClrType());
+        #    ;
+        #
+        #    this.assertNotNull(enumEnumerator);
+        #}
+      ENDSOURCE
+      SOURCE #testNewCLRType_Null
+        #void testNewCLRType_Null()
+        #{
+        #    this.parmExceptionExpected(true);
+        #    SysCLREnumEnumerator::newFromCLRType(CLRInterop::Null('System.TypeCode'));
+        #}
+      ENDSOURCE
+      SOURCE #testReset
+        #void testReset()
+        #{
+        #    SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.TypeCode::Int32);
+        #    ;
+        #
+        #    enumEnumerator.moveNext();
+        #    enumEnumerator.moveNext();
+        #    enumEnumerator.moveNext();
+        #    enumEnumerator.moveNext();
+        #
+        #    enumEnumerator.reset();
+        #    enumEnumerator.moveNext();
+        #
+        #    this.assertEquals('[Empty=0]', enumEnumerator.toString());
+        #}
+      ENDSOURCE
+      SOURCE #testReset_After
+        #void testReset_After()
+        #{
+        #    SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.TypeCode::Int32);
+        #    int dummy;
+        #    ;
+        #
+        #    while( enumEnumerator.moveNext() )
+        #    {
+        #        dummy = 0; // to avoid the 'Empty compound statement' warning
+        #    }
+        #
+        #    enumEnumerator.reset();
+        #    enumEnumerator.moveNext();
+        #
+        #    this.assertEquals('[Empty=0]', enumEnumerator.toString());
+        #}
+      ENDSOURCE
+      SOURCE #testReset_Before
+        #void testReset_Before()
+        #{
+        #    SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.TypeCode::Int32);
+        #    int dummy;
+        #    ;
+        #
+        #    while( enumEnumerator.moveNext() )
+        #    {
+        #        dummy = 0; // to avoid the 'Empty compound statement' warning
+        #    }
+        #
+        #    enumEnumerator.reset();
+        #    enumEnumerator.moveNext();
+        #
+        #    this.assertEquals('[Empty=0]', enumEnumerator.toString());
+        #}
+      ENDSOURCE
+      SOURCE #testSetCurrent
+        #void testSetCurrent()
+        #{
+        #    SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.TypeCode::Int32);
+        #    int value = SysCLREnum::value(System.TypeCode::Int32); // = 9
+        #    ;
+        #
+        #    enumEnumerator.moveNext();
+        #    enumEnumerator.moveNext();
+        #
+        #    enumEnumerator.setCurrent(value);
+        #
+        #    this.assertEquals(value, enumEnumerator.current());
+        #}
+      ENDSOURCE
+      SOURCE #testToMoveNext
+        #void testToMoveNext()
+        #{
+        #    SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.TypeCode::Int32);
+        #    ;
+        #
+        #    enumEnumerator.moveNext();
+        #    enumEnumerator.moveNext();
+        #    enumEnumerator.moveNext();
+        #    enumEnumerator.moveNext();
+        #
+        #    this.assertEquals('[Boolean=3]', enumEnumerator.toString());
+        #}
+      ENDSOURCE
+      SOURCE #testToString
+        #void testToString()
+        #{
+        #    SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.TypeCode::Int32);
+        #    ;
+        #
+        #    enumEnumerator.moveNext();
+        #    enumEnumerator.moveNext();
+        #    enumEnumerator.moveNext();
+        #    enumEnumerator.moveNext();
+        #
+        #    this.assertEquals('[Boolean=3]', enumEnumerator.toString());
+        #}
+      ENDSOURCE
+      SOURCE #testToString_After
+        #void testToString_After()
+        #{
+        #    SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.StringSplitOptions::None);
+        #    int dummy;
+        #    ;
+        #
+        #    while( enumEnumerator.moveNext() )
+        #    {
+        #        dummy = 0; // to avoid the 'Empty compound statement' warning
+        #    }
+        #
+        #    this.assertEquals('{None=0,RemoveEmptyEntries=1}', enumEnumerator.toString());
+        #}
+      ENDSOURCE
+      SOURCE #testToString_After_AllElements
+        #void testToString_After_AllElements()
+        #{
+        #    SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.TypeCode::Int32);
+        #    str expected = '{Empty=0,Object=1,DBNull=2,Boolean=3,Char=4,SByte=5,Byte=6,Int16=7,UInt16=8,Int32=9,UInt32=10,Int64=11,UInt64=12,Single=13,Double=14,Decimal=15,DateTime=16,String=18}';
+        #    int dummy;
+        #    ;
+        #
+        #    while( enumEnumerator.moveNext() )
+        #    {
+        #        dummy = 0; // to avoid the 'Empty compound statement' warning
+        #    }
+        #
+        #    this.assertEquals(expected, enumEnumerator.toString(maxint()));
+        #}
+      ENDSOURCE
+      SOURCE #testToString_After_MaxElements
+        #void testToString_After_MaxElements()
+        #{
+        #    SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.TypeCode::Int32);
+        #    int dummy;
+        #    ;
+        #
+        #    while( enumEnumerator.moveNext() )
+        #    {
+        #        dummy = 0; // to avoid the 'Empty compound statement' warning
+        #    }
+        #
+        #    this.assertEquals('{Empty=0,Object=1,DBNull=2,...}', enumEnumerator.toString(3));
+        #}
+      ENDSOURCE
+      SOURCE #testToString_Before
+        #void testToString_Before()
+        #{
+        #    SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.StringSplitOptions::None);
+        #    ;
+        #
+        #    this.assertEquals('{None=0,RemoveEmptyEntries=1}', enumEnumerator.toString());
+        #}
+      ENDSOURCE
+      SOURCE #testToString_Before_AllElements
+        #void testToString_Before_AllElements()
+        #{
+        #    SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.TypeCode::Int32);
+        #    str expected = '{Empty=0,Object=1,DBNull=2,Boolean=3,Char=4,SByte=5,Byte=6,Int16=7,UInt16=8,Int32=9,UInt32=10,Int64=11,UInt64=12,Single=13,Double=14,Decimal=15,DateTime=16,String=18}';
+        #    ;
+        #
+        #    this.assertEquals(expected, enumEnumerator.toString(maxint()));
+        #}
+      ENDSOURCE
+      SOURCE #testToString_Before_MaxElements
+        #void testToString_Before_MaxElements()
+        #{
+        #    SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.TypeCode::Int32);
+        #    ;
+        #
+        #    this.assertEquals('{Empty=0,Object=1,DBNull=2,...}', enumEnumerator.toString(3));
+        #}
+      ENDSOURCE
+      SOURCE #testValues
+        #void testValues()
+        #{
+        #    SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.StringSplitOptions::None);
+        #    ;
+        #
+        #    this.assertEquals([0,1], enumEnumerator.values());
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
 ***Element: PRN
 
 ; Microsoft Dynamics AX Project : SysCLREnum unloaded
@@ -699,6 +1312,20 @@ Formatversion: 1
       UTILOBJECTID 55324
       NODETYPE 329
       NAME #SysCLREnumTest
+    ENDNODE
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 45
+      UTILOBJECTID 55325
+      NODETYPE 329
+      NAME #SysCLREnumEnumerator
+    ENDNODE
+    BEGINNODE
+      FILETYPE 0
+      UTILTYPE 45
+      UTILOBJECTID 55326
+      NODETYPE 329
+      NAME #SysCLREnumEnumeratorTest
     ENDNODE
   ENDPROJECT
   

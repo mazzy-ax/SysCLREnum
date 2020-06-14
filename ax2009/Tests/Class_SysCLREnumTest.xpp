@@ -1,4 +1,4 @@
-//
+﻿//
 // mazzy, https://github.com/mazzy-ax/SysCLREnum
 //
 class SysCLREnumTest extends SysTestCase
@@ -55,20 +55,22 @@ class SysCLREnumTest extends SysTestCase
 
     void testEqual_SystemEnum()
     {
-        System.TypeCode expected = System.TypeCode::Boolean;
-        SysCLREnum      typeCode = SysCLREnum::contsruct(expected);
+        SysCLREnum  typeCode = SysCLREnum::contsruct(System.TypeCode::Boolean);
         ;
 
-        this.assertTrue(typeCode.equal(expected));
+        new InteropPermission(InteropKind::ClrInterop).assert();
+
+        this.assertTrue(typeCode.equal(System.TypeCode::Boolean));
     }
 
     void testEqual_SystemEnum_NotEqual()
     {
-        System.TypeCode expected = System.TypeCode::Boolean;
-        SysCLREnum      typeCode = SysCLREnum::contsruct(System.TypeCode::Byte);
+        SysCLREnum  typeCode = SysCLREnum::contsruct(System.TypeCode::Byte);
         ;
 
-        this.assertFalse(typeCode.equal(expected));
+        new InteropPermission(InteropKind::ClrInterop).assert();
+
+        this.assertFalse(typeCode.equal(System.TypeCode::Boolean));
     }
 
     void testFormat()
@@ -166,6 +168,16 @@ class SysCLREnumTest extends SysTestCase
         this.assertTrue(actual.Equals(expected));
     }
 
+    void testGetEnumerator()
+    {
+        SysCLREnum enum = SysCLREnum::contsruct(System.TypeCode::Int32);
+        SysCLREnumEnumerator enumEnumerator = enum.getEnumerator();
+        ;
+
+        this.assertNotNull(enumEnumerator);
+        this.assertTrue(SysDictClass::is(enumEnumerator, classnum(SysCLREnumEnumerator)));
+    }
+
     void testGetName()
     {
         SysCLREnum enum = SysCLREnum::contsruct(System.TypeCode::Empty);
@@ -195,6 +207,14 @@ class SysCLREnumTest extends SysTestCase
         container  expected = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,18];
 
         this.assertEquals(expected, enum.getValues());
+    }
+
+    void testImplementEnumerable()
+    {
+        SysDictClass enumClass = new SysDictClass(classnum(SysCLREnum));
+        ;
+
+        this.assertTrue(enumClass.isImplementing(classnum(Enumerable)));
     }
 
     void testIsDefined_Name()

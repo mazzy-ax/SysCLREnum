@@ -1,9 +1,9 @@
-//
+﻿//
 // mazzy, https://github.com/mazzy-ax/SysCLREnum
 //
 // класс-обертка для System.Enum
 // https://docs.microsoft.com/en-us/dotnet/api/system.enum
-class SysCLREnum
+class SysCLREnum implements Enumerable
 {
     System.Enum enum;
 
@@ -161,6 +161,8 @@ class SysCLREnum
         return ret;
     }
 
+    // Внимание! Всегда запрашивает все значения enum. Потенциально медленный метод.
+    // нумерация с нуля
     public static System.Enum fromIdx(System.Type enumType, int idx = 0)
     {
         System.Enum   ret;
@@ -177,6 +179,7 @@ class SysCLREnum
 
         return ret;
     }
+
 
     public static System.Enum fromName(System.Type enumType, str name)
     {
@@ -212,24 +215,27 @@ class SysCLREnum
 
     public static SysCLREnum newFromIdx(System.Type enumType, int idx = 0)
     {
-        System.Enum enum = CLRInterop::getObjectForAnyType(SysCLREnum::fromIdx(enumType, idx));
-        SysCLREnum  ret  = SysCLREnum::contsruct(enum);
+        System.Object obj  = SysCLREnum::fromIdx(enumType, idx);
+        System.Enum   enum = obj;
+        SysCLREnum    ret  = SysCLREnum::contsruct(enum);
 
         return ret;
     }
 
     public static SysCLREnum newFromName(System.Type enumType, str name, boolean ignoreCase = true)
     {
-        System.Enum enum = CLRInterop::getObjectForAnyType(SysCLREnum::parse(enumType, name, true));
-        SysCLREnum  ret  = SysCLREnum::contsruct(enum);
+        System.Object obj  = SysCLREnum::parse(enumType, name, true);
+        System.Enum   enum = obj;
+        SysCLREnum    ret  = SysCLREnum::contsruct(enum);
 
         return ret;
     }
 
     public static SysCLREnum newFromValue(System.Type enumType, int value)
     {
-        System.Enum enum = CLRInterop::getObjectForAnyType(SysCLREnum::fromValue(enumType, value));
-        SysCLREnum  ret  = SysCLREnum::contsruct(enum);
+        System.Object obj = SysCLREnum::fromValue(enumType, value);
+        System.Enum   enum = obj;
+        SysCLREnum    ret  = SysCLREnum::contsruct(enum);
 
         return ret;
     }
@@ -256,5 +262,19 @@ class SysCLREnum
         ret = System.Convert::ToInt32(enum);
 
         return ret;
+    }
+
+    public SysCLREnumEnumerator getEnumerator()
+    {
+        SysCLREnumEnumerator enumerator = SysCLREnumEnumerator::construct(this);
+
+        return enumerator;
+    }
+
+    public System.Type type()
+    {
+        System.Type type = enum.GetType();
+
+        return type;
     }
 }

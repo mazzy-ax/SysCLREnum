@@ -1,4 +1,4 @@
-//
+﻿//
 // mazzy, https://github.com/mazzy-ax/SysCLREnum
 //
 class SysCLREnumTest extends SysTestCase
@@ -312,5 +312,23 @@ class SysCLREnumTest extends SysTestCase
     {
         this.assertEquals(3, SysCLREnum::value(CLRInterop::parseClrEnum('System.TypeCode','Boolean')));
         this.assertEquals(0, SysCLREnum::value(CLRInterop::parseClrEnum('System.TypeCode','Empty')));
+    }
+
+    void testGetEnumerator()
+    {
+        SysCLREnum enum = SysCLREnum::contsruct(CLRInterop::parseClrEnum('System.TypeCode','Int32'));
+        SysCLREnumEnumerator enumEnumerator = enum.getEnumerator();
+        ;
+
+        this.assertNotNull(enumEnumerator);
+        this.assertTrue(SysDictClass::is(enumEnumerator, classnum(SysCLREnumEnumerator)));
+    }
+
+    void testImplementEnumerable()
+    {
+        SysDictClass enumClass = new SysDictClass(classnum(SysCLREnum));
+        ;
+
+        this.assertTrue(enumClass.isImplementing(classnum(Enumerable)));
     }
 }

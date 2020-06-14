@@ -1,9 +1,9 @@
-//
+﻿//
 // mazzy, https://github.com/mazzy-ax/SysCLREnum
 //
 // класс-обертка для System.Enum
 // https://docs.microsoft.com/en-us/dotnet/api/system.enum
-class SysCLREnum
+class SysCLREnum implements Enumerable
 {
     System.Enum enum;
 
@@ -33,6 +33,13 @@ class SysCLREnum
         ret = thisEnum.Equals(otherObject);
 
         return ret;
+    }
+
+    public SysCLREnumEnumerator getEnumerator()
+    {
+        SysCLREnumEnumerator enumerator = SysCLREnumEnumerator::construct(this);
+
+        return enumerator;
     }
 
     public str getName(int value = this.getValue())
@@ -142,6 +149,13 @@ class SysCLREnum
         return ret;
     }
 
+    public System.Type type()
+    {
+        System.Type type = enum.GetType();
+
+        return type;
+    }
+
     public static SysCLREnum contsruct(System.Enum enum)
     {
         SysCLREnum ret = new SysCLREnum(enum);
@@ -161,6 +175,8 @@ class SysCLREnum
         return ret;
     }
 
+    // Внимание! Всегда запрашивает все значения enum. Потенциально медленный метод.
+    // нумерация с нуля
     public static System.Enum fromIdx(System.Type enumType, int idx = 0)
     {
         System.Enum   ret;

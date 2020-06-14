@@ -1,0 +1,285 @@
+﻿class SysCLREnumEnumeratorTest extends SysTestCase
+{
+
+    void testConstruct()
+    {
+        SysCLREnum           enum           = SysCLREnum::contsruct(System.TypeCode::Int32);
+        SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::construct(enum);
+        ;
+
+        this.assertNotNull(enumEnumerator);
+    }
+
+    void testConstruct_Null()
+    {
+        this.parmExceptionExpected(true);
+
+        SysCLREnumEnumerator::construct(null);
+    }
+
+    void testCurrent()
+    {
+        SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.TypeCode::Int32);
+        ;
+
+        enumEnumerator.moveNext();
+        enumEnumerator.moveNext();
+        enumEnumerator.moveNext();
+        enumEnumerator.moveNext();
+
+        this.assertEquals(3, enumEnumerator.current());
+    }
+
+    void testCurrent_After()
+    {
+        SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.TypeCode::Int32);
+        int dummy;
+        ;
+
+        while( enumEnumerator.moveNext() )
+        {
+            dummy = 0; // to avoid the 'Empty compound statement' warning
+        }
+
+        this.parmExceptionExpected(true);
+        enumEnumerator.current();
+    }
+
+    void testCurrent_Before()
+    {
+        SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.TypeCode::Int32);
+        ;
+
+        this.parmExceptionExpected(true);
+        enumEnumerator.current();
+    }
+
+    void testDefinitionString()
+    {
+        SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.TypeCode::Int32);
+        ;
+
+        this.assertEquals('System.TypeCode', enumEnumerator.definitionString());
+
+    }
+
+    void testEstimatedIterations()
+    {
+        SysCLREnum           enum           = SysCLREnum::contsruct(System.TypeCode::Int32);
+        SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::construct(enum);
+        ;
+
+        this.assertEquals(18, enumEnumerator.estimatedIterations());
+    }
+
+    void testImplementEnumerator()
+    {
+        SysDictClass enumClass = new SysDictClass(classnum(SysCLREnumEnumerator));
+        ;
+
+        this.assertTrue(enumClass.isImplementing(classnum(Enumerator)));
+    }
+
+    void testNames()
+    {
+        SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.StringSplitOptions::None);
+        ;
+
+        this.assertEquals(['None','RemoveEmptyEntries'], enumEnumerator.names());
+    }
+
+    void testNewCLREnum()
+    {
+        SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.TypeCode::Int32);
+        ;
+
+        this.assertNotNull(enumEnumerator);
+    }
+
+    void testNewCLREnum_Null()
+    {
+        this.parmExceptionExpected(true);
+        SysCLREnumEnumerator::newFromCLREnum(CLRInterop::Null('System.TypeCode'));
+    }
+
+    void testNewCLRType()
+    {
+        SysCLRType           type           = SysCLRType::newFromTypeName('System.TypeCode');
+        SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLRType(type.parmClrType());
+        ;
+
+        this.assertNotNull(enumEnumerator);
+    }
+
+    void testNewCLRType_Null()
+    {
+        this.parmExceptionExpected(true);
+        SysCLREnumEnumerator::newFromCLRType(CLRInterop::Null('System.TypeCode'));
+    }
+
+    void testReset()
+    {
+        SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.TypeCode::Int32);
+        ;
+
+        enumEnumerator.moveNext();
+        enumEnumerator.moveNext();
+        enumEnumerator.moveNext();
+        enumEnumerator.moveNext();
+
+        enumEnumerator.reset();
+        enumEnumerator.moveNext();
+
+        this.assertEquals('[Empty=0]', enumEnumerator.toString());
+    }
+
+    void testReset_After()
+    {
+        SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.TypeCode::Int32);
+        int dummy;
+        ;
+
+        while( enumEnumerator.moveNext() )
+        {
+            dummy = 0; // to avoid the 'Empty compound statement' warning
+        }
+
+        enumEnumerator.reset();
+        enumEnumerator.moveNext();
+
+        this.assertEquals('[Empty=0]', enumEnumerator.toString());
+    }
+
+    void testReset_Before()
+    {
+        SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.TypeCode::Int32);
+        int dummy;
+        ;
+
+        while( enumEnumerator.moveNext() )
+        {
+            dummy = 0; // to avoid the 'Empty compound statement' warning
+        }
+
+        enumEnumerator.reset();
+        enumEnumerator.moveNext();
+
+        this.assertEquals('[Empty=0]', enumEnumerator.toString());
+    }
+
+    void testSetCurrent()
+    {
+        SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.TypeCode::Int32);
+        int value = SysCLREnum::value(System.TypeCode::Int32); // = 9
+        ;
+
+        enumEnumerator.moveNext();
+        enumEnumerator.moveNext();
+
+        enumEnumerator.setCurrent(value);
+
+        this.assertEquals(value, enumEnumerator.current());
+    }
+
+    void testToMoveNext()
+    {
+        SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.TypeCode::Int32);
+        ;
+
+        enumEnumerator.moveNext();
+        enumEnumerator.moveNext();
+        enumEnumerator.moveNext();
+        enumEnumerator.moveNext();
+
+        this.assertEquals('[Boolean=3]', enumEnumerator.toString());
+    }
+
+    void testToString()
+    {
+        SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.TypeCode::Int32);
+        ;
+
+        enumEnumerator.moveNext();
+        enumEnumerator.moveNext();
+        enumEnumerator.moveNext();
+        enumEnumerator.moveNext();
+
+        this.assertEquals('[Boolean=3]', enumEnumerator.toString());
+    }
+
+    void testToString_After()
+    {
+        SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.StringSplitOptions::None);
+        int dummy;
+        ;
+
+        while( enumEnumerator.moveNext() )
+        {
+            dummy = 0; // to avoid the 'Empty compound statement' warning
+        }
+
+        this.assertEquals('{None=0,RemoveEmptyEntries=1}', enumEnumerator.toString());
+    }
+
+    void testToString_After_AllElements()
+    {
+        SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.TypeCode::Int32);
+        str expected = '{Empty=0,Object=1,DBNull=2,Boolean=3,Char=4,SByte=5,Byte=6,Int16=7,UInt16=8,Int32=9,UInt32=10,Int64=11,UInt64=12,Single=13,Double=14,Decimal=15,DateTime=16,String=18}';
+        int dummy;
+        ;
+
+        while( enumEnumerator.moveNext() )
+        {
+            dummy = 0; // to avoid the 'Empty compound statement' warning
+        }
+
+        this.assertEquals(expected, enumEnumerator.toString(maxint()));
+    }
+
+    void testToString_After_MaxElements()
+    {
+        SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.TypeCode::Int32);
+        int dummy;
+        ;
+
+        while( enumEnumerator.moveNext() )
+        {
+            dummy = 0; // to avoid the 'Empty compound statement' warning
+        }
+
+        this.assertEquals('{Empty=0,Object=1,DBNull=2,...}', enumEnumerator.toString(3));
+    }
+
+    void testToString_Before()
+    {
+        SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.StringSplitOptions::None);
+        ;
+
+        this.assertEquals('{None=0,RemoveEmptyEntries=1}', enumEnumerator.toString());
+    }
+
+    void testToString_Before_AllElements()
+    {
+        SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.TypeCode::Int32);
+        str expected = '{Empty=0,Object=1,DBNull=2,Boolean=3,Char=4,SByte=5,Byte=6,Int16=7,UInt16=8,Int32=9,UInt32=10,Int64=11,UInt64=12,Single=13,Double=14,Decimal=15,DateTime=16,String=18}';
+        ;
+
+        this.assertEquals(expected, enumEnumerator.toString(maxint()));
+    }
+
+    void testToString_Before_MaxElements()
+    {
+        SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.TypeCode::Int32);
+        ;
+
+        this.assertEquals('{Empty=0,Object=1,DBNull=2,...}', enumEnumerator.toString(3));
+    }
+
+    void testValues()
+    {
+        SysCLREnumEnumerator enumEnumerator = SysCLREnumEnumerator::newFromCLREnum(System.StringSplitOptions::None);
+        ;
+
+        this.assertEquals([0,1], enumEnumerator.values());
+    }
+}

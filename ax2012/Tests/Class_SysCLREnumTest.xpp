@@ -1,4 +1,4 @@
-//
+﻿//
 // mazzy, https://github.com/mazzy-ax/SysCLREnum
 //
 class SysCLREnumTest extends SysTestCase
@@ -55,7 +55,7 @@ class SysCLREnumTest extends SysTestCase
 
     void testEqual_SystemEnum()
     {
-        SysCLREnum      typeCode = SysCLREnum::contsruct(System.TypeCode::Boolean);
+        SysCLREnum  typeCode = SysCLREnum::contsruct(System.TypeCode::Boolean);
         ;
 
         new InteropPermission(InteropKind::ClrInterop).assert();
@@ -65,7 +65,7 @@ class SysCLREnumTest extends SysTestCase
 
     void testEqual_SystemEnum_NotEqual()
     {
-        SysCLREnum      typeCode = SysCLREnum::contsruct(System.TypeCode::Byte);
+        SysCLREnum  typeCode = SysCLREnum::contsruct(System.TypeCode::Byte);
         ;
 
         new InteropPermission(InteropKind::ClrInterop).assert();
@@ -168,6 +168,16 @@ class SysCLREnumTest extends SysTestCase
         this.assertTrue(actual.Equals(expected));
     }
 
+    void testGetEnumerator()
+    {
+        SysCLREnum enum = SysCLREnum::contsruct(System.TypeCode::Int32);
+        SysCLREnumEnumerator enumEnumerator = enum.getEnumerator() as SysCLREnumEnumerator;
+        ;
+
+        this.assertNotNull(enumEnumerator);
+        this.assertTrue(enumEnumerator is SysCLREnumEnumerator);
+    }
+
     void testGetName()
     {
         SysCLREnum enum = SysCLREnum::contsruct(System.TypeCode::Empty);
@@ -197,6 +207,14 @@ class SysCLREnumTest extends SysTestCase
         container  expected = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,18];
 
         this.assertEquals(expected, enum.getValues());
+    }
+
+    void testImplementEnumerable()
+    {
+        SysDictClass enumClass = new SysDictClass(classnum(SysCLREnum));
+        ;
+
+        this.assertTrue(enumClass.isImplementing(classnum(Enumerable)));
     }
 
     void testIsDefined_Name()
